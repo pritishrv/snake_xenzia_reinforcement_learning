@@ -25,7 +25,9 @@ def moving_average(values: list[float], window: int) -> list[float]:
 
 def save_episode_history(output_dir: Path, history: list[dict[str, Any]]) -> None:
     ensure_dir(output_dir)
-    fieldnames = ["episode", "reward", "score", "steps", "epsilon"]
+    if not history:
+        return
+    fieldnames = list(history[0].keys())
     path = output_dir / "episode_history.csv"
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
@@ -49,10 +51,6 @@ def save_run_metadata(output_dir: Path, payload: dict[str, Any]) -> None:
     dump_json(output_dir / "metadata.json", payload)
 
 
-def save_q_table(output_dir: Path, q_table: dict[str, list[float]]) -> None:
-    dump_json(output_dir / "q_table.json", {"q_table": q_table})
-
-
 def plot_rewards(output_dir: Path, history: list[dict[str, Any]], window: int) -> None:
     rewards = [row["reward"] for row in history]
     smooth = moving_average(rewards, window)
@@ -61,7 +59,7 @@ def plot_rewards(output_dir: Path, history: list[dict[str, Any]], window: int) -
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.plot(episodes, rewards, alpha=0.35, label="Episode reward")
     ax.plot(episodes, smooth, linewidth=2, label=f"Moving average ({window})")
-    ax.set_title("Q-learning Reward Curve")
+    ax.set_title("DQN Reward Curve")
     ax.set_xlabel("Episode")
     ax.set_ylabel("Reward")
     ax.legend()
@@ -79,7 +77,7 @@ def plot_scores(output_dir: Path, history: list[dict[str, Any]], window: int) ->
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.plot(episodes, scores, alpha=0.35, label="Episode score")
     ax.plot(episodes, smooth, linewidth=2, label=f"Moving average ({window})")
-    ax.set_title("Q-learning Score Curve")
+    ax.set_title("DQN Score Curve")
     ax.set_xlabel("Episode")
     ax.set_ylabel("Score")
     ax.legend()
@@ -89,26 +87,50 @@ def plot_scores(output_dir: Path, history: list[dict[str, Any]], window: int) ->
     plt.close(fig)
 
 
+def plot_loss(output_dir: Path, history: list[dict[str, Any]], window: int) -> None:
+    losses = [row["loss"] for row in history if row["loss"] is not None]
+    if not losses:
+        return
+    smooth = moving_average(losses, window)
+    episodes = list(range(len(losses)))
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.plot(episodes, losses, alpha=0.35, label="Training loss")
+    ax.plot(episodes, smooth, linewidth=2, label=f"Moving average ({window})")
+    ax.set_yscale("log")
+    ax.set_title("DQN Training Loss (Log Scale)")
+    ax.set_xlabel("Update Step")
+    ax.set_ylabel("Loss")
+    ax.legend()
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(output_dir / "loss_curve.png", dpi=150)
+    plt.close(fig)
+
+
 def write_markdown_summary(output_dir: Path, summary: dict[str, Any]) -> None:
     lines = [
         f"# {summary['name']}",
         "",
         "## Hyperparameters",
         "",
-        f"- alpha: `{summary['alpha']}`",
-        f"- gamma: `{summary['gamma']}`",
-        f"- epsilon_start: `{summary['epsilon_start']}`",
-        f"- epsilon_min: `{summary['epsilon_min']}`",
-        f"- epsilon_decay: `{summary['epsilon_decay']}`",
-        f"- reward_scheme: `{summary['reward_scheme']}`",
+    ]
+    for key in ["learning_rate", "gamma", "epsilon_start", "epsilon_min", "epsilon_decay", 
+                "batch_size", "buffer_capacity", "target_update_freq", "eps_clip", "k_epochs", 
+                "hidden_dims", "reward_scheme"]:
+        if key in summary:
+            lines.append(f"- {key}: `{summary[key]}`")
+    
+    lines.extend([
         "",
         "## Results",
         "",
-        f"- final_epsilon: `{summary['final_epsilon']:.4f}`",
         f"- average_reward_last_50: `{summary['average_reward_last_50']:.3f}`",
         f"- average_score_last_50: `{summary['average_score_last_50']:.3f}`",
         f"- max_score: `{summary['max_score']}`",
         f"- average_steps_last_50: `{summary['average_steps_last_50']:.2f}`",
-        f"- visited_states: `{summary['visited_states']}`",
-    ]
+    ])
+    if "final_epsilon" in summary:
+        lines.append(f"- final_epsilon: `{summary['final_epsilon']:.4f}`")
+        
     (output_dir / "summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")

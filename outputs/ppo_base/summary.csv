@@ -1,0 +1,2 @@
+name,learning_rate,gamma,eps_clip,k_epochs,hidden_dims,reward_scheme,average_reward_last_50,average_score_last_50,average_steps_last_50,max_score
+ppo_baseline_dense,0.0003,0.99,0.2,10,"[128, 128]",dense,-10.372,0.2,21.24,2

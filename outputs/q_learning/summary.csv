@@ -1,5 +1,5 @@
-name,alpha,gamma,epsilon_start,epsilon_min,epsilon_decay,reward_scheme,final_epsilon,average_reward_last_50,average_score_last_50,average_steps_last_50,max_score,visited_states
-epsilon_fast_decay_dense,0.1,0.95,1.0,0.05,0.985,dense,0.05,87.538,8.9,69.46,28,241
-epsilon_slow_decay_dense,0.1,0.95,1.0,0.05,0.995,dense,0.22229219984074702,20.926,2.86,29.88,7,211
-constant_exploration_dense,0.1,0.95,0.2,0.2,1.0,dense,0.2,26.836,3.44,32.38,14,228
-epsilon_slow_decay_sparse,0.1,0.95,1.0,0.05,0.995,sparse,0.22229219984074702,20.6,3.06,31.48,11,202
+name,alpha,gamma,epsilon_start,epsilon_min,epsilon_decay,reward_scheme,final_epsilon,average_reward_last_50,average_score_last_50,average_steps_last_50,max_score,visited_states,episodes_completed,stopped_early
+epsilon_fast_decay_dense,0.1,0.95,1.0,0.05,0.985,dense,0.05,87.538,8.9,69.46,28,241,300,False
+epsilon_slow_decay_dense,0.1,0.95,1.0,0.05,0.995,dense,0.22229219984074702,20.926,2.86,29.88,7,211,300,False
+constant_exploration_dense,0.1,0.95,0.2,0.2,1.0,dense,0.2,26.836,3.44,32.38,14,228,300,False
+epsilon_slow_decay_sparse,0.1,0.95,1.0,0.05,0.995,sparse,0.22229219984074702,20.6,3.06,31.48,11,202,300,False

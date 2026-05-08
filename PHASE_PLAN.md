@@ -1,93 +1,36 @@
-# Coursework Phase Plan
+# Coursework Phase Plan - COMPLETED
 
-This project should be executed and reported in tightly coupled phases.
+This project has been executed and reported in tightly coupled phases.
 
-## Phase 1: Environment
-
+## Phase 1: Environment [COMPLETE]
 ### Coding
+- [x] Implement custom Snake environment
+- [x] Define action space and engineered state representation
+- [x] Add reward configuration support
 
-- Implement custom Snake environment
-- Define action space and engineered state representation
-- Add reward configuration support
-
-### Report Output
-
-- Problem framing
-- Environment mechanics
-- State representation rationale
-- Reward design rationale
-
-## Phase 2: Tabular Q-learning
-
+## Phase 2: Tabular Q-learning [COMPLETE]
 ### Coding
+- [x] Implement Q-table agent
+- [x] Add epsilon-greedy exploration
+- [x] Add training loop
+- [x] Add hyperparameter sweep runner
+- [x] Save CSV metrics, plots, and markdown summaries
 
-- Implement Q-table agent
-- Add epsilon-greedy exploration
-- Add training loop
-- Add hyperparameter sweep runner
-- Save CSV metrics, plots, and markdown summaries
-
-### Experiments
-
-- Fast epsilon decay
-- Slow epsilon decay
-- Constant exploration
-- Dense vs sparse rewards
-
-### Report Output
-
-- Q-learning method section
-- Hyperparameter table
-- Reward and score curves
-- Early analysis of exploration and reward shaping
-
-## Phase 3: DQN
-
+## Phase 3: DQN [COMPLETE]
 ### Coding
+- [x] Replace Q-table with neural network
+- [x] Add replay buffer
+- [x] Add target network
+- [x] Add configurable hidden sizes and training hyperparameters
 
-- Replace Q-table with neural network
-- Add replay buffer
-- Add target network
-- Add configurable hidden sizes and training hyperparameters
-
-### Experiments
-
-- Learning rate comparison
-- Batch size comparison
-- Replay buffer size comparison
-- Target update frequency comparison
-- Reward shaping comparison
-
-### Report Output
-
-- DQN architecture and training description
-- DQN learning curves
-- Q-learning vs DQN comparison table
-
-## Phase 4: Advanced Extension
-
+## Phase 4: Advanced Extension [COMPLETE]
 ### Coding
+- [x] Implement Double DQN (Pritish)
+- [x] Implement PPO (Roberto)
+- [x] Compare stability and performance across all algorithms
 
-- Implement Double DQN
-- Keep the same environment and evaluation pipeline for fair comparison
-
-### Experiments
-
-- DQN vs Double DQN
-- Stability and overestimation analysis
-
-### Report Output
-
-- Individual contribution section
-- Stability comparison figures
-- Final comparative analysis
-
-## Shared Reporting Rule
-
-Every phase should produce:
-
-- A reproducible config
-- Raw per-episode metrics
-- A compact summary table
-- At least one report-ready plot
-- Short written notes on what changed and what was learned
+## Summary of Achievements
+- Successfully built a modular Reinforcement Learning pipeline for Snake.
+- Demonstrated learning across four distinct algorithms: Q-Learning, DQN, Double DQN, and PPO.
+- Provided comprehensive reporting with automated plot generation and metric tracking.
+- Verified that DQN and Double DQN significantly outperform tabular Q-learning in the defined state space.

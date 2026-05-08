@@ -21,6 +21,9 @@ class QLearningAgent:
             return int(np.random.randint(self.action_size))
         return int(np.argmax(self._get_q_values(state)))
 
+    def select_greedy_action(self, state: tuple[int, ...]) -> int:
+        return int(np.argmax(self._get_q_values(state)))
+
     def update(
         self,
         state: tuple[int, ...],
@@ -46,6 +49,9 @@ class QLearningAgent:
             "epsilon_decay": self.epsilon_decay,
             "visited_states": len(self.q_table),
         }
+
+    def export_q_table(self) -> dict[str, list[float]]:
+        return {",".join(str(bit) for bit in key): values.tolist() for key, values in self.q_table.items()}
 
     def _get_q_values(self, state: tuple[int, ...]) -> np.ndarray:
         if state not in self.q_table:

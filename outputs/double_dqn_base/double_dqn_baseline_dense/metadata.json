@@ -1,0 +1,68 @@
+{
+  "base_config": {
+    "seed": 42,
+    "grid_size": 10,
+    "episodes": 500,
+    "max_steps_per_episode": 250,
+    "moving_average_window": 50,
+    "reward_schemes": {
+      "dense": {
+        "food": 10.0,
+        "death": -10.0,
+        "step": -0.1,
+        "closer_to_food": 0.3,
+        "farther_from_food": -0.3
+      }
+    },
+    "experiments": [
+      {
+        "name": "double_dqn_baseline_dense",
+        "agent_type": "double_dqn",
+        "learning_rate": 0.001,
+        "gamma": 0.99,
+        "epsilon_start": 1.0,
+        "epsilon_min": 0.05,
+        "epsilon_decay": 0.995,
+        "batch_size": 64,
+        "buffer_capacity": 10000,
+        "target_update_freq": 100,
+        "hidden_dims": [
+          128,
+          128
+        ],
+        "reward_scheme": "dense"
+      }
+    ]
+  },
+  "experiment": {
+    "name": "double_dqn_baseline_dense",
+    "agent_type": "double_dqn",
+    "learning_rate": 0.001,
+    "gamma": 0.99,
+    "epsilon_start": 1.0,
+    "epsilon_min": 0.05,
+    "epsilon_decay": 0.995,
+    "batch_size": 64,
+    "buffer_capacity": 10000,
+    "target_update_freq": 100,
+    "hidden_dims": [
+      128,
+      128
+    ],
+    "reward_scheme": "dense"
+  },
+  "agent_snapshot": {
+    "learning_rate": 0.001,
+    "gamma": 0.99,
+    "epsilon": 0.08157186144027828,
+    "epsilon_min": 0.05,
+    "epsilon_decay": 0.995,
+    "batch_size": 64,
+    "buffer_capacity": 10000,
+    "target_update_freq": 100,
+    "hidden_dims": [
+      128,
+      128
+    ]
+  }
+}

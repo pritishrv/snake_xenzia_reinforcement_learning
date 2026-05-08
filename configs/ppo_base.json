@@ -1,0 +1,28 @@
+{
+  "seed": 42,
+  "grid_size": 10,
+  "episodes": 500,
+  "max_steps_per_episode": 250,
+  "update_timestep": 2000,
+  "moving_average_window": 50,
+  "reward_schemes": {
+    "dense": {
+      "food": 10.0,
+      "death": -10.0,
+      "step": -0.1,
+      "closer_to_food": 0.3,
+      "farther_from_food": -0.3
+    }
+  },
+  "experiments": [
+    {
+      "name": "ppo_baseline_dense",
+      "learning_rate": 0.0003,
+      "gamma": 0.99,
+      "eps_clip": 0.2,
+      "k_epochs": 10,
+      "hidden_dims": [128, 128],
+      "reward_scheme": "dense"
+    }
+  ]
+}
