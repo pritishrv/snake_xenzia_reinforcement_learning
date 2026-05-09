@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -11,29 +9,27 @@ from typing import Any
 
 
 class ActorCritic(nn.Module):
-    def __init__(self, state_size: int, action_size: int, hidden_dims: list[int]):
+    def __init__(self, stateSize: int, actionSize: int, hiddenDims: list[int]):
         super().__init__()
         
-        # Actor network
-        actor_layers = []
-        curr_dim = state_size
-        for h_dim in hidden_dims:
-            actor_layers.append(nn.Linear(curr_dim, h_dim))
-            actor_layers.append(nn.ReLU())
-            curr_dim = h_dim
-        actor_layers.append(nn.Linear(curr_dim, action_size))
-        actor_layers.append(nn.Softmax(dim=-1))
-        self.actor = nn.Sequential(*actor_layers)
+        actorLayers = []
+        currentDim = stateSize
+        for dim in hiddenDims:
+            actorLayers.append(nn.Linear(currentDim, dim))
+            actorLayers.append(nn.ReLU())
+            currentDim = dim
+        actorLayers.append(nn.Linear(currentDim, actionSize))
+        actorLayers.append(nn.Softmax(dim=-1))
+        self.actor = nn.Sequential(*actorLayers)
         
-        # Critic network
-        critic_layers = []
-        curr_dim = state_size
-        for h_dim in hidden_dims:
-            critic_layers.append(nn.Linear(curr_dim, h_dim))
-            critic_layers.append(nn.ReLU())
-            curr_dim = h_dim
-        critic_layers.append(nn.Linear(curr_dim, 1))
-        self.critic = nn.Sequential(*critic_layers)
+        criticLayers = []
+        currentDim = stateSize
+        for dim in hiddenDims:
+            criticLayers.append(nn.Linear(currentDim, dim))
+            criticLayers.append(nn.ReLU())
+            currentDim = dim
+        criticLayers.append(nn.Linear(currentDim, 1))
+        self.critic = nn.Sequential(*criticLayers)
 
     def forward(self):
         raise NotImplementedError
@@ -42,51 +38,50 @@ class ActorCritic(nn.Module):
         probs = self.actor(state)
         dist = Categorical(probs)
         action = dist.sample()
-        action_logprob = dist.log_prob(action)
-        return action.detach(), action_logprob.detach()
+        actionLogProb = dist.log_prob(action)
+        return action.detach(), actionLogProb.detach()
 
     def evaluate(self, state, action):
         probs = self.actor(state)
         dist = Categorical(probs)
-        action_logprobs = dist.log_prob(action)
-        dist_entropy = dist.entropy()
-        state_values = self.critic(state)
-        return action_logprobs, state_values, dist_entropy
+        actionLogProb = dist.log_prob(action)
+        distEntropy = dist.entropy()
+        stateValues = self.critic(state)
+        return actionLogProb, stateValues, distEntropy
 
 
 @dataclass
 class PPOAgent:
-    state_size: int
-    action_size: int
-    hidden_dims: list[int]
-    learning_rate: float
+    stateSize: int
+    actionSize: int
+    hiddenDims: list[int]
+    learningRate: float
     gamma: float
-    eps_clip: float
+    epsClip: float
     k_epochs: int
     device: torch.device = field(default_factory=lambda: torch.device("cpu"))
 
     def __post_init__(self) -> None:
-        self.policy = ActorCritic(self.state_size, self.action_size, self.hidden_dims).to(self.device)
-        self.optimizer = optim.Adam(self.policy.parameters(), lr=self.learning_rate)
-        self.policy_old = ActorCritic(self.state_size, self.action_size, self.hidden_dims).to(self.device)
-        self.policy_old.load_state_dict(self.policy.state_dict())
+        self.policy = ActorCritic(self.stateSize, self.actionSize, self.hiddenDims).to(self.device)
+        self.optimizer = optim.Adam(self.policy.parameters(), lr=self.learningRate)
+        self.oldPolicy = ActorCritic(self.stateSize, self.actionSize, self.hiddenDims).to(self.device)
+        self.oldPolicy.load_state_dict(self.policy.state_dict())
         
         self.MseLoss = nn.MSELoss()
         self.memory = []
 
     def select_action(self, state: tuple[int, ...]) -> int:
-        state_tensor = torch.FloatTensor(state).to(self.device)
+        stateTensor = torch.FloatTensor(state).to(self.device)
         with torch.no_grad():
-            action, action_logprob = self.policy_old.act(state_tensor)
+            action, actionLogProb = self.oldPolicy.act(stateTensor)
         
-        # Store transition
-        self.memory_state = state_tensor
+        self.memory_state = stateTensor
         self.memory_action = action
-        self.memory_logprob = action_logprob
+        self.memory_logprob = actionLogProb
         
         return int(action.item())
 
-    def store_transition(self, reward: float, is_terminal: bool):
+    def storeTransition(self, reward: float, is_terminal: bool):
         self.memory.append({
             "state": self.memory_state,
             "action": self.memory_action,
@@ -96,64 +91,49 @@ class PPOAgent:
         })
 
     def update(self) -> float:
-        # Monte Carlo estimate of returns
         rewards = []
-        discounted_reward = 0
+        discountedReward = 0
         for transition in reversed(self.memory):
             if transition["is_terminal"]:
-                discounted_reward = 0
-            discounted_reward = transition["reward"] + (self.gamma * discounted_reward)
-            rewards.insert(0, discounted_reward)
+                discountedReward = 0
+            discountedReward = transition["reward"] + (self.gamma * discountedReward)
+            rewards.insert(0, discountedReward)
             
-        # Normalizing the rewards
         rewards = torch.tensor(rewards, dtype=torch.float32).to(self.device)
         rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-7)
 
-        # Convert list to tensor
-        old_states = torch.stack([t["state"] for t in self.memory]).detach().to(self.device)
-        old_actions = torch.stack([t["action"] for t in self.memory]).detach().to(self.device)
-        old_logprobs = torch.stack([t["logprob"] for t in self.memory]).detach().to(self.device)
+        oldStates = torch.stack([t["state"] for t in self.memory]).detach().to(self.device)
+        oldActions = torch.stack([t["action"] for t in self.memory]).detach().to(self.device)
+        oldLogprobs = torch.stack([t["logprob"] for t in self.memory]).detach().to(self.device)
 
-        loss_accum = 0.0
-        # Optimize policy for K epochs
+        accumulatedLoss = 0.0
         for _ in range(self.k_epochs):
-            # Evaluating old actions and values
-            logprobs, state_values, dist_entropy = self.policy.evaluate(old_states, old_actions)
-            
-            # match state_values tensor dimensions with rewards tensor
-            state_values = torch.squeeze(state_values)
-            
-            # Finding the ratio (pi_theta / pi_theta__old)
-            ratios = torch.exp(logprobs - old_logprobs.detach())
+            logprobs, stateValues, distEntropy = self.policy.evaluate(oldStates, oldActions)
+            stateValues = torch.squeeze(stateValues)
+            ratios = torch.exp(logprobs - oldLogprobs.detach())
 
-            # Finding Surrogate Loss
-            advantages = rewards - state_values.detach()   
+            advantages = rewards - stateValues.detach()   
             surr1 = ratios * advantages
-            surr2 = torch.clamp(ratios, 1-self.eps_clip, 1+self.eps_clip) * advantages
+            surr2 = torch.clamp(ratios, 1-self.epsClip, 1+self.epsClip) * advantages
 
-            # final loss of clipped objective PPO
-            loss = -torch.min(surr1, surr2) + 0.5*self.MseLoss(state_values, rewards) - 0.01*dist_entropy
+            loss = -torch.min(surr1, surr2) + 0.5*self.MseLoss(stateValues, rewards) - 0.01*distEntropy
             
-            # take gradient step
             self.optimizer.zero_grad()
             loss.mean().backward()
             self.optimizer.step()
             
-            loss_accum += loss.mean().item()
+            accumulatedLoss += loss.mean().item()
             
-        # Copy new weights into old policy
-        self.policy_old.load_state_dict(self.policy.state_dict())
-
-        # clear memory
+        self.oldPolicy.load_state_dict(self.policy.state_dict())
         self.memory = []
         
-        return loss_accum / self.k_epochs
+        return accumulatedLoss / self.k_epochs
 
     def snapshot(self) -> dict[str, Any]:
         return {
-            "learning_rate": self.learning_rate,
+            "learning_rate": self.learningRate,
             "gamma": self.gamma,
-            "eps_clip": self.eps_clip,
+            "eps_clip": self.epsClip,
             "k_epochs": self.k_epochs,
-            "hidden_dims": self.hidden_dims,
+            "hidden_dims": self.hiddenDims,
         }

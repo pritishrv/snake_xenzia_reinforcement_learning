@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import csv
 from pathlib import Path
 from typing import Any
@@ -10,10 +8,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from snake_rl.utils.io import dump_json, ensure_dir
+from snake_rl.utils.io import dumpJSON, checkDir
 
 
-def moving_average(values: list[float], window: int) -> list[float]:
+def movingAverage(values: list[float], window: int) -> list[float]:
     if not values:
         return []
     averages = []
@@ -23,37 +21,32 @@ def moving_average(values: list[float], window: int) -> list[float]:
     return averages
 
 
-def save_episode_history(output_dir: Path, history: list[dict[str, Any]]) -> None:
-    ensure_dir(output_dir)
+def saveEpisodeHistory(outputFolder: Path, history: list[dict[str, Any]]) -> None:
+    checkDir(outputFolder)
     if not history:
         return
     fieldnames = list(history[0].keys())
-    path = output_dir / "episode_history.csv"
+    path = outputFolder / "episode_history.csv"
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(history)
 
 
-def save_summary_table(output_dir: Path, rows: list[dict[str, Any]]) -> None:
-    ensure_dir(output_dir)
+def saveSummaryTable(outputFolder: Path, rows: list[dict[str, Any]]) -> None:
+    checkDir(outputFolder)
     if not rows:
         return
     fieldnames = list(rows[0].keys())
-    path = output_dir / "summary.csv"
+    path = outputFolder / "summary.csv"
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
 
-
-def save_run_metadata(output_dir: Path, payload: dict[str, Any]) -> None:
-    dump_json(output_dir / "metadata.json", payload)
-
-
-def plot_rewards(output_dir: Path, history: list[dict[str, Any]], window: int) -> None:
+def plotRewards(outputFolder: Path, history: list[dict[str, Any]], window: int) -> None:
     rewards = [row["reward"] for row in history]
-    smooth = moving_average(rewards, window)
+    smooth = movingAverage(rewards, window)
     episodes = [row["episode"] for row in history]
 
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -65,13 +58,13 @@ def plot_rewards(output_dir: Path, history: list[dict[str, Any]], window: int) -
     ax.legend()
     ax.grid(alpha=0.3)
     fig.tight_layout()
-    fig.savefig(output_dir / "reward_curve.png", dpi=150)
+    fig.savefig(outputFolder / "reward_curve.png", dpi=150)
     plt.close(fig)
 
 
-def plot_scores(output_dir: Path, history: list[dict[str, Any]], window: int) -> None:
+def plotScores(outputFolder: Path, history: list[dict[str, Any]], window: int) -> None:
     scores = [row["score"] for row in history]
-    smooth = moving_average(scores, window)
+    smooth = movingAverage(scores, window)
     episodes = [row["episode"] for row in history]
 
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -83,15 +76,15 @@ def plot_scores(output_dir: Path, history: list[dict[str, Any]], window: int) ->
     ax.legend()
     ax.grid(alpha=0.3)
     fig.tight_layout()
-    fig.savefig(output_dir / "score_curve.png", dpi=150)
+    fig.savefig(outputFolder / "score_curve.png", dpi=150)
     plt.close(fig)
 
 
-def plot_loss(output_dir: Path, history: list[dict[str, Any]], window: int) -> None:
+def plotLoss(outputFolder: Path, history: list[dict[str, Any]], window: int) -> None:
     losses = [row["loss"] for row in history if row["loss"] is not None]
     if not losses:
         return
-    smooth = moving_average(losses, window)
+    smooth = movingAverage(losses, window)
     episodes = list(range(len(losses)))
 
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -104,11 +97,11 @@ def plot_loss(output_dir: Path, history: list[dict[str, Any]], window: int) -> N
     ax.legend()
     ax.grid(alpha=0.3)
     fig.tight_layout()
-    fig.savefig(output_dir / "loss_curve.png", dpi=150)
+    fig.savefig(outputFolder / "loss_curve.png", dpi=150)
     plt.close(fig)
 
 
-def write_markdown_summary(output_dir: Path, summary: dict[str, Any]) -> None:
+def saveSummary(outputFolder: Path, summary: dict[str, Any]) -> None:
     lines = [
         f"# {summary['name']}",
         "",
@@ -133,4 +126,4 @@ def write_markdown_summary(output_dir: Path, summary: dict[str, Any]) -> None:
     if "final_epsilon" in summary:
         lines.append(f"- final_epsilon: `{summary['final_epsilon']:.4f}`")
         
-    (output_dir / "summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (outputFolder / "summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")

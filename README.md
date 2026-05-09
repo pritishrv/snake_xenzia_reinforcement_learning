@@ -1,16 +1,8 @@
 # Deep Reinforcement Learning Coursework
 
-This repository is organized in phases so implementation and reporting can
-progress together.
+Pritish Ranjan Verma, Roberto Tsuneki Sa Freire
 
-## Phase Roadmap
-
-1. `Phase 1`: Snake environment
-2. `Phase 2`: Tabular Q-learning baseline and hyperparameter experiments
-3. `Phase 3`: DQN baseline and hyperparameter experiments
-4. `Phase 4`: Advanced DRL extensions and final comparison
-
-## Current Scope
+## Scope
 
 The current codebase implements:
 
@@ -20,10 +12,22 @@ The current codebase implements:
 - Report-ready outputs including CSV summaries, plots, and markdown notes
 - A pygame-based live training viewer for Q-learning
 
-## Run Phase 2
+## Run tabular Q-learning experiments
 
 ```bash
 python3 -m src.snake_rl.experiments.run_q_learning
+```
+
+## Run tabular Q-learning experiments
+
+```bash
+python3 -m src.snake_rl.experiments.run_dqn.py
+```
+
+## Run tabular Q-learning experiments
+
+```bash
+python3 -m src.snake_rl.experiments.run_ppo.py
 ```
 
 Outputs are written under `outputs/q_learning/`.

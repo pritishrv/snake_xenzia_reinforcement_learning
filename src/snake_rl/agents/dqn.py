@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import random
 from collections import deque
 from dataclasses import dataclass, field
@@ -12,17 +10,16 @@ import torch.optim as optim
 
 
 class DQNNetwork(nn.Module):
-    """Simple MLP for Q-function approximation."""
 
-    def __init__(self, input_dim: int, hidden_dims: list[int], output_dim: int) -> None:
+    def __init__(self, inputDim: int, hiddenDims: list[int], outputDim: int) -> None:
         super().__init__()
         layers = []
-        curr_dim = input_dim
-        for h_dim in hidden_dims:
-            layers.append(nn.Linear(curr_dim, h_dim))
+        currDim = inputDim
+        for dim in hiddenDims:
+            layers.append(nn.Linear(currDim, dim))
             layers.append(nn.ReLU())
-            curr_dim = h_dim
-        layers.append(nn.Linear(curr_dim, output_dim))
+            currDim = dim
+        layers.append(nn.Linear(currDim, outputDim))
         self.model = nn.Sequential(*layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -30,7 +27,6 @@ class DQNNetwork(nn.Module):
 
 
 class ReplayBuffer:
-    """Experience replay buffer."""
 
     def __init__(self, capacity: int) -> None:
         self.buffer: deque[tuple[np.ndarray, int, float, np.ndarray, bool]] = deque(maxlen=capacity)
@@ -92,7 +88,7 @@ class DQNAgent:
         self.memory = ReplayBuffer(self.buffer_capacity)
         self.steps_done = 0
 
-    def select_action(self, state: tuple[int, ...]) -> int:
+    def chooseAction(self, state: tuple[int, ...]) -> int:
         if random.random() < self.epsilon:
             return random.randrange(self.action_size)
 

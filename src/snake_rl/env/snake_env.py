@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections import deque
 from dataclasses import dataclass
 import random
@@ -24,24 +22,23 @@ class StepResult:
 
 
 class SnakeEnv:
-    """Minimal Snake environment with engineered tabular state features."""
 
     def __init__(
         self,
-        grid_size: int = 10,
-        reward_config: dict[str, float] | None = None,
-        max_steps_without_food: int | None = None,
+        gridSize: int = 10,
+        rewardConfig: dict[str, float] | None = None,
+        maxStepsNoFood: int | None = None,
         seed: int | None = None,
     ) -> None:
-        self.grid_size = grid_size
-        self.reward_config = reward_config or {
+        self.grid_size = gridSize
+        self.reward_config = rewardConfig or {
             "food": 10.0,
             "death": -10.0,
             "step": -0.1,
             "closer_to_food": 0.3,
             "farther_from_food": -0.3,
         }
-        self.max_steps_without_food = max_steps_without_food or (grid_size * grid_size)
+        self.max_steps_without_food = maxStepsNoFood or (gridSize * gridSize)
         self.rng = random.Random(seed)
         self.snake: Deque[tuple[int, int]] = deque()
         self.direction: tuple[int, int] = RIGHT

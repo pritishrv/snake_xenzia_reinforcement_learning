@@ -1,34 +1,24 @@
-from __future__ import annotations
-
 from typing import Any
-
 from snake_rl.env.snake_env import SnakeEnv
+import pygame
 
 
 class PygameSnakeRenderer:
-    """Simple pygame renderer for visualizing learning episodes live."""
 
-    def __init__(self, grid_size: int, cell_size: int = 32, fps: int = 20) -> None:
-        try:
-            import pygame
-        except ModuleNotFoundError as exc:
-            raise RuntimeError(
-                "pygame is not installed. Install it with `python3 -m pip install pygame`."
-            ) from exc
-
+    def __init__(self, gridSize: int, cellSize: int = 32, fps: int = 20) -> None:
         self.pygame = pygame
         pygame.init()
         pygame.font.init()
-        self.grid_size = grid_size
-        self.cell_size = cell_size
+        self.gridSize = gridSize
+        self.cellSize = cellSize
         self.fps = fps
-        self.width = grid_size * cell_size
-        self.height = grid_size * cell_size + 90
+        self.width = gridSize * cellSize
+        self.height = gridSize * cellSize + 90
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("Snake Q-Learning Live Training")
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont("Menlo", 20)
-        self.small_font = pygame.font.SysFont("Menlo", 16)
+        self.smallFont = pygame.font.SysFont("Menlo", 16)
 
     def render(
         self,
@@ -45,8 +35,8 @@ class PygameSnakeRenderer:
                 return False
 
         self.screen.fill((18, 18, 18))
-        self._draw_board(env)
-        self._draw_stats(env, episode, step, reward, epsilon, mode)
+        self.drawBoard(env)
+        self.drawStats(env, episode, step, reward, epsilon, mode)
         pygame.display.flip()
         self.clock.tick(self.fps)
         return True
@@ -54,42 +44,42 @@ class PygameSnakeRenderer:
     def close(self) -> None:
         self.pygame.quit()
 
-    def _draw_board(self, env: SnakeEnv) -> None:
+    def drawBoard(self, env: SnakeEnv) -> None:
         pygame = self.pygame
-        board_height = env.grid_size * self.cell_size
+        boardHeight = env.grid_size * self.cellSize
         for x in range(env.grid_size):
             for y in range(env.grid_size):
                 rect = pygame.Rect(
-                    x * self.cell_size,
-                    y * self.cell_size,
-                    self.cell_size,
-                    self.cell_size,
+                    x * self.cellSize,
+                    y * self.cellSize,
+                    self.cellSize,
+                    self.cellSize,
                 )
                 color = (38, 38, 38) if (x + y) % 2 == 0 else (32, 32, 32)
                 pygame.draw.rect(self.screen, color, rect)
                 pygame.draw.rect(self.screen, (52, 52, 52), rect, width=1)
 
         food_rect = pygame.Rect(
-            env.food[0] * self.cell_size + 4,
-            env.food[1] * self.cell_size + 4,
-            self.cell_size - 8,
-            self.cell_size - 8,
+            env.food[0] * self.cellSize + 4,
+            env.food[1] * self.cellSize + 4,
+            self.cellSize - 8,
+            self.cellSize - 8,
         )
         pygame.draw.rect(self.screen, (220, 60, 60), food_rect, border_radius=6)
 
         for idx, segment in enumerate(env.snake):
             rect = pygame.Rect(
-                segment[0] * self.cell_size + 3,
-                segment[1] * self.cell_size + 3,
-                self.cell_size - 6,
-                self.cell_size - 6,
+                segment[0] * self.cellSize + 3,
+                segment[1] * self.cellSize + 3,
+                self.cellSize - 6,
+                self.cellSize - 6,
             )
             color = (90, 210, 120) if idx == 0 else (60, 170, 90)
             pygame.draw.rect(self.screen, color, rect, border_radius=6)
 
-        pygame.draw.line(self.screen, (70, 70, 70), (0, board_height), (self.width, board_height), 2)
+        pygame.draw.line(self.screen, (70, 70, 70), (0, boardHeight), (self.width, boardHeight), 2)
 
-    def _draw_stats(
+    def drawStats(
         self,
         env: SnakeEnv,
         episode: int,
@@ -98,7 +88,7 @@ class PygameSnakeRenderer:
         epsilon: float,
         mode: str,
     ) -> None:
-        board_height = env.grid_size * self.cell_size
+        boardHeight = env.grid_size * self.cellSize
         lines = [
             f"Mode: {mode}",
             f"Episode: {episode}",
@@ -108,9 +98,9 @@ class PygameSnakeRenderer:
             f"Reward: {reward:.2f}",
         ]
         for idx, line in enumerate(lines):
-            font = self.font if idx == 0 else self.small_font
+            font = self.font if idx == 0 else self.smallFont
             text = font.render(line, True, (235, 235, 235))
-            self.screen.blit(text, (12, board_height + 10 + idx * 12))
+            self.screen.blit(text, (12, boardHeight + 10 + idx * 12))
 
-        hint = self.small_font.render("Close the window to stop training.", True, (180, 180, 180))
-        self.screen.blit(hint, (self.width - hint.get_width() - 12, board_height + 12))
+        hint = self.smallFont.render("Close the window to stop training.", True, (180, 180, 180))
+        self.screen.blit(hint, (self.width - hint.get_width() - 12, boardHeight + 12))
